@@ -1,0 +1,43 @@
+<div class="page-container">
+    <div class="page-header">
+        <h1><mat-icon>factory</mat-icon> Line Schedule</h1>
+        <button mat-stroked-button (click)="loadLineSchedule()" [disabled]="isLoading"><mat-icon>refresh</mat-icon> Refresh</button>
+    </div>
+
+    <div *ngIf="isLoading" class="spinner-center"><mat-spinner diameter="48"></mat-spinner><p>Loading line schedule...</p></div>
+    <div *ngIf="!isLoading && errorMsg" class="error-box"><mat-icon>error</mat-icon> {{ errorMsg }}<button mat-button (click)="loadLines()">Retry</button></div>
+
+    <ng-container *ngIf="!isLoading && !errorMsg">
+        <mat-card>
+            <mat-card-content>
+                <div class="selector-row">
+                    <mat-form-field appearance="outline" style="min-width:250px">
+                        <mat-label>Select Production Line</mat-label>
+                        <mat-select [(value)]="selectedLine" (selectionChange)="loadLineSchedule()">
+                            <mat-option *ngFor="let line of lines" [value]="line">{{ line }}</mat-option>
+                        </mat-select>
+                    </mat-form-field>
+                </div>
+            </mat-card-content>
+        </mat-card>
+
+        <mat-card style="margin-top: 20px;">
+            <mat-card-header><mat-card-title>Schedule for {{ selectedLine }}</mat-card-title></mat-card-header>
+            <mat-card-content>
+                <div class="table-responsive">
+                    <table mat-table [dataSource]="lineSteps" class="data-table">
+                        <ng-container matColumnDef="orderId"><th mat-header-cell *matHeaderCellDef>Order ID</th><td mat-cell *matCellDef="let s">{{ s.orderId }}</td></ng-container>
+                        <ng-container matColumnDef="stepSeq"><th mat-header-cell *matHeaderCellDef>Step</th><td mat-cell *matCellDef="let s">{{ s.stepSeq }}</td></ng-container>
+                        <ng-container matColumnDef="processName"><th mat-header-cell *matHeaderCellDef>Process</th><td mat-cell *matCellDef="let s">{{ s.processName }}</td></ng-container>
+                        <ng-container matColumnDef="plannedStart"><th mat-header-cell *matHeaderCellDef>Start</th><td mat-cell *matCellDef="let s">{{ formatDate(s.plannedStart) }}</td></ng-container>
+                        <ng-container matColumnDef="plannedEnd"><th mat-header-cell *matHeaderCellDef>End</th><td mat-cell *matCellDef="let s">{{ formatDate(s.plannedEnd) }}</td></ng-container>
+                        <ng-container matColumnDef="duration"><th mat-header-cell *matHeaderCellDef>Duration</th><td mat-cell *matCellDef="let s">{{ formatDuration(s.durationMinutes) }}</td></ng-container>
+                        <ng-container matColumnDef="delayed"><th mat-header-cell *matHeaderCellDef>Delayed?</th><td mat-cell *matCellDef="let s"><span [class]="s.isDelayed ? 'chip-red' : 'chip-green'">{{ s.isDelayed ? 'Yes' : 'No' }}</span></td></ng-container>
+                        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+                        <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+                    </table>
+                </div>
+            </mat-card-content>
+        </mat-card>
+    </ng-container>
+</div>
